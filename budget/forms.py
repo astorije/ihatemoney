@@ -152,6 +152,7 @@ class BillForm(Form):
 class MemberForm(Form):
 
     name = TextField(_("Name"), validators=[Required()])
+    email = TextField(_("Email"), validators=[Email()])
     submit = SubmitField(_("Add"))
 
     def __init__(self, project, *args, **kwargs):
@@ -169,6 +170,7 @@ class MemberForm(Form):
     def save(self, project, person):
         # if the user is already bound to the project, just reactivate him
         person.name = self.name.data
+        person.email = self.email.data
         person.project = project
 
         return person

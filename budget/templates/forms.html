@@ -92,7 +92,9 @@
 
 {% macro add_member(form) %}
 {{ form.hidden_tag() }}
-{{ form.name(placeholder=_("Type user name here")) }}<button class="btn">{{ _("Add") }}</button>
+{{ form.name(placeholder=_("Type user name here")) }}<br>
+{{ form.email(placeholder=_("Type email here")) }}<br>
+<button class="btn">{{ _("Add") }}</button>
 {% endmacro %}
 
 {% macro invites(form) %}

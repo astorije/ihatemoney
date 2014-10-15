@@ -152,13 +152,14 @@ class Person(db.Model):
 
     query_class = PersonQuery
 
-    _to_serialize = ("id", "name", "activated")
+    _to_serialize = ("id", "name", "email", "activated")
 
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.String, db.ForeignKey("project.id"))
     bills = db.relationship("Bill", backref="payer")
 
     name = db.Column(db.UnicodeText)
+    email = db.Column(db.UnicodeText, nullable=True)
     activated = db.Column(db.Boolean, default=True)
 
     def has_bills(self):
