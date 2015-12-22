@@ -137,6 +137,21 @@ class Project(db.Model):
         return "<Project %s>" % self.name
 
 
+class Email(db.Model):
+
+    class EmailQuery(BaseQuery):
+        def get(self):
+            return Person.query.all()
+
+    query_class = EmailQuery
+
+    id = db.Column(db.Integer, primary_key=True)
+    person_id = db.Column(db.Integer, db.ForeignKey("person.id"))
+    email = db.Column(db.String(120))
+
+    def __repr__(self):
+        return '<Email %s for %s>' % (self.email, self.person)
+
 class Person(db.Model):
 
     class PersonQuery(BaseQuery):
@@ -157,6 +172,7 @@ class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.String, db.ForeignKey("project.id"))
     bills = db.relationship("Bill", backref="payer")
+    emails = db.relationship("Email", backref="person")
 
     name = db.Column(db.UnicodeText)
     email = db.Column(db.UnicodeText, nullable=True)
@@ -180,7 +196,6 @@ billowers = db.Table('billowers',
     db.Column('bill_id', db.Integer, db.ForeignKey('bill.id')),
     db.Column('person_id', db.Integer, db.ForeignKey('person.id')),
 )
-
 
 class Bill(db.Model):
 

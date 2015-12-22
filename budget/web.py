@@ -17,9 +17,9 @@ from smtplib import SMTPRecipientsRefused
 import werkzeug
 
 # local modules
-from models import db, Project, Person, Bill
+from models import db, Project, Person, Bill, Email
 from forms import AuthenticationForm, CreateArchiveForm, EditProjectForm, \
-    InviteForm, MemberForm, PasswordReminder, ProjectForm, get_billform_for
+    InviteForm, MemberForm, PasswordReminder, ProjectForm, get_billform_for, EmailForm, get_emailforms_for
 from utils import Redirect303
 
 
@@ -282,7 +282,8 @@ def list_bills():
     return render_template("list_bills.html",
             bills=bills, member_form=MemberForm(g.project),
             bill_form=bill_form,
-            add_bill=request.values.get('add_bill', False)
+            add_bill=request.values.get('add_bill', False),
+            email_forms=get_emailforms_for(g.project)
     )
 
 
@@ -299,6 +300,20 @@ def add_member():
 
     return render_template("add_member.html", form=form)
 
+@main.route("/<project_id>/members/<member_id>/add_email", methods=["POST"])
+def add_email(member_id):
+    person = Person.query.filter(Person.id == member_id)\
+                .filter(Project.id == g.project.id).all()
+
+    form = EmailForm(g.project, person[0])
+    if form.validate():
+        email = form.save(Email())
+
+        db.session.commit()
+        flash(_("%(email)s had been added", email=email.email))
+        return redirect(url_for(".list_bills"))
+    else:
+        return render_template("add_email.html", form=form)
 
 @main.route("/<project_id>/members/<member_id>/reactivate", methods=["POST"])
 def reactivate(member_id):
@@ -335,13 +350,26 @@ def add_bill():
             db.session.add(form.save(bill, g.project))
             db.session.commit()
 
+            # mail.send(Message(
+            #     "test",
+            #     body="test",
+            #     recipients=[u'jeremie@astori.fr']
+            #     # "add bill"
+            #     # body=render_template(add_bill),
+            #     # recipients=[ower.email for ower in bill.owers if ower.email]
+            # ))
+
+            msg = Message("Hello yahouuu ufw",
+                  recipients=["jeremie@astori.fr"])
+            mail.send(msg)
+
             flash(_("The bill has been added"))
 
             args = {}
             if form.submit2.data:
                 args['add_bill'] = True
 
-            return redirect(url_for('.list_bills', **args))
+            # return redirect(url_for('.list_bills', **args))
 
     return render_template("add_bill.html", form=form)
 

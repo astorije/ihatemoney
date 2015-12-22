@@ -42,13 +42,13 @@
         });
         $("#bal-member-"+payer_id).addClass("payer_line");
     };
-    
+
     var unhighlight_owers = function(){
         $('[id^="bal-member-"]').removeClass("ower_line payer_line");
     };
-    
+
     $('#bill_table tbody tr').hover(highlight_owers, unhighlight_owers);
-    
+
 {% endblock %}
 
 {% block sidebar %}
@@ -65,7 +65,14 @@
     <tr id="bal-member-{{ member.id }}" action={% if member.activated %}delete{% else %}reactivate{% endif %}>
         <td class="balance-name">
             {{ member.name }}<br>
-            {{ member.email }}
+            <ul>
+                {% for email in member.emails %}
+                    <li>{{ email.email }}</li>
+                {% endfor %}
+            </ul>
+            <form id="add-email-form" action="{{ url_for(".add_email", member_id=member.id) }}" method="post" class="form-inline input-append">
+                {{ forms.add_email(email_forms[member.id]) }}
+            </form>
         </td>
         {% if member.activated %}
         <td>

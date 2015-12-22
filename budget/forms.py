@@ -48,6 +48,8 @@ def get_billform_for(project, set_default=True, **kwargs):
         form.set_default()
     return form
 
+def get_emailforms_for(project, **kwargs):
+    return {member.id: EmailForm(project, member, **kwargs) for member in project.members}
 
 class CommaDecimalField(DecimalField):
     """A class to deal with comma in Decimal Field"""
@@ -152,7 +154,6 @@ class BillForm(Form):
 class MemberForm(Form):
 
     name = TextField(_("Name"), validators=[Required()])
-    email = TextField(_("Email"), validators=[Email()])
     submit = SubmitField(_("Add"))
 
     def __init__(self, project, *args, **kwargs):
@@ -170,10 +171,24 @@ class MemberForm(Form):
     def save(self, project, person):
         # if the user is already bound to the project, just reactivate him
         person.name = self.name.data
-        person.email = self.email.data
         person.project = project
 
         return person
+
+class EmailForm(Form):
+
+    email = TextField(_("Email"), validators=[Required(), Email()])
+    submit = SubmitField(_("Add"))
+
+    def __init__(self, project, person, *args, **kwargs):
+        super(EmailForm, self).__init__(*args, **kwargs)
+        self.project = project
+        self.person = person
+
+    def save(self, email):
+        email.email = self.email.data
+
+        return email
 
 
 class InviteForm(Form):
